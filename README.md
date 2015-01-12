@@ -31,8 +31,8 @@ require('fh-dev-proxy');
 ```
 
 There should be no other code in _application.js_. All you need to do now is 
-set your target address to proxy the requests to by setting the FH_PROXY_TARGET 
-environment variable. When setting the FH_PROXY_TARGET leave out the protocol 
+set your target address to proxy the requests to by setting the PROXY_TARGET_FH 
+environment variable. When setting the PROXY_TARGET_FH leave out the protocol 
 prefix and just provide the hostname e.g. _securehost.com_. The reason for 
 this is due to the fact that the proxy will dynamically select the protocol 
 based on the protocol you make the request using in your code.
@@ -95,20 +95,20 @@ like there.
 You can configure a few environment variables to setup this component for use 
 and your needs. The variables and their uses are explained below. 
 
-* FH_PROXY_TARGET - Required. The domain you wish to proxy requests to.
+* PROXY_TARGET_FH - Required. The domain you wish to proxy requests to.
 
-* FH_PROXY_ADDRESSES - The address(es) that can use this proxy without the need 
+* PROXY_ADDRESSES_FH - The address(es) that can use this proxy without the need 
 to validate with FeedHenry credentials via the login portal. Be sure it's 
 your _external_ IP address if you're behind a NAT.
 
-* FH_PROXY_SESSION_TIMEOUT - The number of milliseconds of inactivity required 
+* PROXY_SESSION_TIMEOUT_FH - The number of milliseconds of inactivity required 
 for a logged in proxy session to be terminated. Defaults to 10 minutes.
 
 These two variables are not yet supported, but may need to be in the future.
-* FH_PROXY_HTTP_PORT - The port to send HTTP requests to on the 
-FH_PROXY_TARGET. Defaults to 80.
-* FH_PROXY_HTTPS_PORT - The port to send HTTPS requests to on the 
-FH_PROXY_TARGET. Defaults to 443.
+* PROXY_HTTP_PORT_FH - The port to send HTTP requests to on the 
+PROXY_TARGET_FH. Defaults to 80.
+* PROXY_HTTPS_PORT_FH - The port to send HTTPS requests to on the 
+PROXY_TARGET_FH. Defaults to 443.
 
 
 ## Protocols and HTTPS

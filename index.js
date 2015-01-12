@@ -1,7 +1,7 @@
 'use strict';
 
-if (typeof process.env['FH_PROXY_TARGET'] !== 'string') {
-  throw new Error('FH_PROXY_TARGET env var has not been set, startup aborted.');
+if (typeof process.env['PROXY_TARGET_FH'] !== 'string') {
+  throw new Error('PROXY_TARGET_FH env var has not been set, startup aborted.');
 }
 
 var mbaasApi = require('fh-mbaas-api');
