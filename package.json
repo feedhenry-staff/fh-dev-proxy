@@ -2,7 +2,7 @@
   "name": "fh-dev-proxy",
   "version": "0.0.0",
   "description": "Enables local development requests to be proxied through the FeedHenry cloud for access to secure backend systems.",
-  "main": "index.js",
+  "main": "./index.js",
   "scripts": {
     "test": "make test"
   },
@@ -17,11 +17,11 @@
   "license": "MIT",
   "dependencies": {
     "memory-cache": "0.0.5",
-    "request": "~2.51.0",
     "express": "~4.0.0",
     "fh-mbaas-api": "~4.7.1",
     "fhlog": "0.0.6",
-    "body-parser": "~1.10.1"
+    "body-parser": "~1.10.1",
+    "http-proxy": "~1.8.1"
   },
   "devDependencies": {
     "linelint": "~1.0.0",
