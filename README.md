@@ -37,6 +37,11 @@ prefix and just provide the hostname e.g. _securehost.com_. The reason for
 this is due to the fact that the proxy will dynamically select the protocol 
 based on the protocol you make the request using in your code.
 
+## Reserved Routes
+The usually FeedHenry routes are reserved as is _/proxy-auth_, this means that 
+making a request to you proxy that has the path _/sys/info/ping_ will be routed 
+to the FeedHenry handler for this. Realistically the potentially for this being 
+an issue is _very_ slim.
 
 ## Usage
 Below two options are described that will allow you to utilise your shiny new 
@@ -44,7 +49,7 @@ development proxy.
 
 #### Option 1
 Configure your hosts file to redirect all requests for the host in question to 
-your proxy instance. Totally seemples, just don't forget that you did it!
+your proxy instance. Totally seemples!
 
 #### Option 2
 For most projects that use HTTP(S) requests you're probably using the fantastic 
@@ -59,7 +64,8 @@ var request = require('request');
 request({
 	url: 'http://somedomain.com',
 	method: 'GET',
-	proxy: 'http://fh_cloudapp_url.com' // Request will actually be sent here
+	// Request will actually be sent here and then to somedomain.com
+	proxy: 'http://fh_cloudapp_url.com'
 }, function (err, res, body) {
 	
 });
@@ -122,7 +128,8 @@ a black box design rather than an extension of a FeedHenry Express application.
 It also doesn't inspect headers etc. as by design it requires as little 
 modification to your application codebase as possible. If it moves towards a 
 headers inspection style _Option #2_ above via _request.defaults_ might become 
-the standard way of using this.
+the standard way of using this instead of the hosts, or combination of both.
 
 It may be required that a proxy can perform requests to multiple target 
-hosts rather than a single configured one as is the current situation.
+hosts rather than a single configured one as is the current situation, but for 
+now this isn't supported.

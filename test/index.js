@@ -15,8 +15,8 @@ var SECURE_DOMAIN = 'fake-domain-name.com'
   })
 
 // Setup the proxy env vars
-process.env['FH_PROXY_TARGET'] = '127.0.0.1:9000';
-process.env['FH_PROXY_ADDRESSES'] = '127.0.0.1';
+process.env['PROXY_TARGET_FH'] = '127.0.0.1:9000';
+process.env['PROXY_ADDRESSES_FH'] = '127.0.0.1';
 
 var request = require('request');
 
@@ -32,7 +32,7 @@ describe('Proxy Server', function () {
     it('Should get an "ok" from SECURE_DOMAIN without proxy', function (done) {
       request({
         method: 'GET',
-        url: 'http://' + process.env['FH_PROXY_TARGET'],
+        url: 'http://' + process.env['PROXY_TARGET_FH'],
       }, function (err, res, body) {
         assert.equal(err, null);
         assert.equal(body, 'OK');
@@ -56,7 +56,7 @@ describe('Proxy Server', function () {
 
   describe('Verify IP Sec', function () {
     it('Should not forward request due to IP being invalid', function (done) {
-      process.env['FH_PROXY_ADDRESSES'] = '';
+      process.env['PROXY_ADDRESSES_FH'] = '';
 
       request({
         method: 'GET',
