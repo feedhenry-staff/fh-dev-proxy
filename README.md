@@ -6,14 +6,15 @@ to reach a private web service via the whitelisted FeedHenry cloud.
 
 
 ## Security & Authentication
-Naturally exposing a direct proxy without some form of security proxy isn't 
+Naturally exposing a direct proxy without some form of security isn't 
 wise as it could potentially be abused by would be attackers. Preventing 
 unauthorised access to the proxy can be accomplished via two methods. It can be 
-configured to allow a number of provided IP addresses to have access without 
+configured to allow a number of whitelisted IP addresses to have access without 
 the need to have a login performed first, your office IP for example, or users 
 can authenticate via a web portal. 
 
-NOTE: _The web portal is not implemented yet, so you'll need._
+NOTE: _The web portal is not implemented yet, so you'll need to 
+use IP whitelisting as mentioned above for now._
 
 The web portal will allow users to authenticate their current IP address for 
 use of the proxy by using their FeedHenry login credentials for the domain upon 
@@ -62,9 +63,9 @@ the request like so:
 var request = require('request');
 
 request({
-	url: 'http://somedomain.com',
+	url: 'http://somedomain.com/users',
 	method: 'GET',
-	// Request will actually be sent here and then to somedomain.com
+	// Request will actually be sent here and then to somedomain.com/users
 	proxy: 'http://fh_cloudapp_url.com'
 }, function (err, res, body) {
 	
@@ -101,11 +102,14 @@ like there.
 You can configure a few environment variables to setup this component for use 
 and your needs. The variables and their uses are explained below. 
 
-* PROXY_TARGET_FH - Required. The domain you wish to proxy requests to.
+* PROXY_TARGET_FH - Required. The domain you want this proxy to proxy requests 
+to.
 
-* PROXY_ADDRESSES_FH - The address(es) that can use this proxy without the need 
-to validate with FeedHenry credentials via the login portal. Be sure it's 
-your _external_ IP address if you're behind a NAT.
+* PROXY_ADDRESSES_FH - A comma separated list of IP address(es) that can use 
+this proxy without the need to validate with FeedHenry credentials via the 
+login portal. Be sure it's your _external_ IP address if you're behind a NAT. 
+Example (don't include the quotes when setting this): 
+"73.186.83.1, 73.186.33.108"
 
 * PROXY_SESSION_TIMEOUT_FH - The number of milliseconds of inactivity required 
 for a logged in proxy session to be terminated. Defaults to 10 minutes.
