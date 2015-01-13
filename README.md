@@ -45,14 +45,7 @@ to the FeedHenry handler for this. Realistically the potentially for this being
 an issue is _very_ slim.
 
 ## Usage
-Below two options are described that will allow you to utilise your shiny new 
-development proxy.
 
-#### Option 1
-Configure your hosts file to redirect all requests for the host in question to 
-your proxy instance. Totally seemples!
-
-#### Option 2
 For most projects that use HTTP(S) requests you're probably using the fantastic 
 _request_ module, and if that's the case then you're in luck! To make _request_ 
 proxy requests to specific hosts for you, simply set a proxy option when making 
@@ -109,7 +102,7 @@ to.
 this proxy without the need to validate with FeedHenry credentials via the 
 login portal. Be sure it's your _external_ IP address if you're behind a NAT. 
 Example (don't include the quotes when setting this): 
-"73.186.83.1, 73.186.33.108"
+"XXX.XXX.XXX.XXX, XXX.XXX.XXX.XXX"
 
 * PROXY_SESSION_TIMEOUT_FH - The number of milliseconds of inactivity required 
 for a logged in proxy session to be terminated. Defaults to 10 minutes.
@@ -130,9 +123,9 @@ and HTTPS are supported at present.
 All are welcome. This is pretty simply put together at present and is a bit of 
 a black box design rather than an extension of a FeedHenry Express application. 
 It also doesn't inspect headers etc. as by design it requires as little 
-modification to your application codebase as possible. If it moves towards a 
-headers inspection style _Option #2_ above via _request.defaults_ might become 
-the standard way of using this instead of the hosts, or combination of both.
+modification to your application codebase as possible. A _node-evil-dns_ type 
+setup could also be useful for remapping DNS lookups during local development 
+to point to the proxy server running on the FeedHenry platform.
 
 It may be required that a proxy can perform requests to multiple target 
 hosts rather than a single configured one as is the current situation, but for 
