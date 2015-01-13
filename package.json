@@ -16,6 +16,7 @@
   "author": "Evan Shortiss",
   "license": "MIT",
   "dependencies": {
+    "request": "~2.51.0",
     "memory-cache": "0.0.5",
     "express": "~4.0.0",
     "fh-mbaas-api": "~4.7.1",
