@@ -29,8 +29,9 @@ app.use(mbaasExpress.fhmiddleware());
 
 // fhlint-begin: custom-routes
 app.use('/proxy-auth', auth);
-app.use(proxy);
 // fhlint-end
+app.use(auth.validateIpAddress);
+app.use('/*', proxy);
 
 // Important that this is last!
 app.use(mbaasExpress.errorHandler());
