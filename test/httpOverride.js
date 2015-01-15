@@ -30,7 +30,7 @@ function instanceUrlStub (opts, callback) {
   delete opts.forceProxy;
 
   if (JSON.stringify(opts) === JSON.stringify(VALID_INSTANCE_CONFIG)) {
-    callback(null, 'www.google.com');
+    callback(null, 'imgur.com');
   } else {
     // Just return google for testing purposes
     callback(true, null);
@@ -130,19 +130,23 @@ describe('HTTP Override', function () {
       httpOverride.init(VALID_INSTANCE_CONFIG, done);
     });
 
-    it('Should use the request module and return google.com in place of' +
+    // This test has failed in the past with an unusual response of:
+    // <body>unknown domain:
+    // if the last test works then don't worry
+    it('Should use the request module and return imgur.com in place of' +
       ' super-fakedomain.com', function (done) {
       request({
+        method: 'get',
         uri: 'http://'.concat(HOST_TO_PROXY)
       }, function (err, res, body) {
         expect(err).to.be.null;
         expect(res).to.be.an('object');
-        expect(body.indexOf('<title>Google</title>')).not.to.equal(-1);
+        expect(body.indexOf('the simple image sharer')).not.to.equal(-1);
         done();
       });
     });
 
-    it('Should use the http.get and return google.com in place of' +
+    it('Should use the http.get and return imgur.com in place of' +
       ' super-fakedomain.com', function (done) {
 
       var resData = '';
@@ -157,7 +161,7 @@ describe('HTTP Override', function () {
         });
 
         res.on('end', function () {
-          expect(resData.indexOf('<title>Google</title>')).not.to.equal(-1);
+          expect(resData.indexOf('the simple image sharer')).not.to.equal(-1);
           done();
         });
       });
@@ -167,7 +171,7 @@ describe('HTTP Override', function () {
     });
 
 
-    it('Should use the https.get and return google.com in place of' +
+    it('Should use the https.get and return imgur.com in place of' +
       ' super-fakedomain.com', function (done) {
 
       var resData = '';
@@ -182,7 +186,7 @@ describe('HTTP Override', function () {
         });
 
         res.on('end', function () {
-          expect(resData.indexOf('<title>Google</title>')).not.to.equal(-1);
+          expect(resData.indexOf('the simple image sharer')).not.to.equal(-1);
           done();
         });
       });
@@ -190,6 +194,47 @@ describe('HTTP Override', function () {
       req.on('error', done);
       req.end();
     });
+
+
+
+    it('Should use the http.get and return imgur.com/about in place of' +
+      ' super-fakedomain.com', function (done) {
+
+      var resData = '';
+
+      var req = http.get({
+        hostname: HOST_TO_PROXY,
+        path: '/about'
+      }, function (res) {
+        res.setEncoding('utf8');
+
+        res.on('data', function (d) {
+          resData += d;
+        });
+
+        res.on('end', function () {
+          expect(resData.indexOf('About Us - Imgur</title>')).not.to.equal(-1);
+          done();
+        });
+      });
+
+      req.on('error', done);
+      req.end();
+    });
+
+    it('Should use the request module and return imgur.com/images in place' +
+      ' of super-fakedomain.com', function (done) {
+      request({
+        uri: 'http://'.concat(HOST_TO_PROXY).concat('/about')
+      }, function (err, res, body) {
+        expect(err).to.be.null;
+        expect(res).to.be.an('object');
+        console.log(body);
+        expect(body.indexOf('<title>About Us - Imgur</title>')).not.to.equal(-1);
+        done();
+      });
+    });
+
   });
 
 });
