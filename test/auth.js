@@ -45,8 +45,8 @@ describe('Auth Middleware', function () {
 
     var req = {
       headers: {
-        'X-FH-Proxy-Api-Key': apiKey,
-        'X-FH-Proxy-Instance': guid
+        'x-fh-proxy-api-key': apiKey,
+        'x-fh-proxy-instance': guid
       }
     };
 

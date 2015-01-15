@@ -27,7 +27,9 @@ var INVALID_INSTANCE_CONFIG = {
 };
 
 function instanceUrlStub (opts, callback) {
-  if (opts === VALID_INSTANCE_CONFIG) {
+  delete opts.forceProxy;
+
+  if (JSON.stringify(opts) === JSON.stringify(VALID_INSTANCE_CONFIG)) {
     callback(null, 'www.google.com');
   } else {
     // Just return google for testing purposes

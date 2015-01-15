@@ -44,10 +44,10 @@ var FAKE_GUID = 'FAKE_GUID'
   , FAKE_TARGET = 'FAKE_TARGET';
 
 var VALID_HEADERS = {
-  'X-FH-Proxy-Api-Key': FAKE_API_KEY,
-  'X-FH-Proxy-Instance': FAKE_GUID,
-  'X-FH-Proxy-Target': FAKE_TARGET,
-  'X-FH-Proxy-Protocol': 'http:'
+  'x-fh-proxy-api-key': FAKE_API_KEY,
+  'x-fh-proxy-instance': FAKE_GUID,
+  'x-fh-proxy-target': FAKE_TARGET,
+  'x-fh-proxy-protocol': 'http:'
 };
 
 describe('Proxy Route', function () {
@@ -78,9 +78,9 @@ describe('Proxy Route', function () {
 
     expect(end.called).to.be.true;
     expect(status.called).to.be.true;
+    console.log('ok')
 
     expect(status.calledWith(200)).to.be.true;
-        console.log('ok')
     expect(
       end.calledWith('ok')
       ).to.be.true;
