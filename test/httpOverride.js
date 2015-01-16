@@ -30,9 +30,8 @@ function instanceUrlStub (opts, callback) {
   delete opts.forceProxy;
 
   if (JSON.stringify(opts) === JSON.stringify(VALID_INSTANCE_CONFIG)) {
-    callback(null, 'imgur.com');
+    callback(null, 'http://imgur.com');
   } else {
-    // Just return google for testing purposes
     callback(true, null);
   }
 }
@@ -130,9 +129,6 @@ describe('HTTP Override', function () {
       httpOverride.init(VALID_INSTANCE_CONFIG, done);
     });
 
-    // This test has failed in the past with an unusual response of:
-    // <body>unknown domain:
-    // if the last test works then don't worry
     it('Should use the request module and return imgur.com in place of' +
       ' super-fakedomain.com', function (done) {
       request({
@@ -222,15 +218,14 @@ describe('HTTP Override', function () {
       req.end();
     });
 
-    it('Should use the request module and return imgur.com/images in place' +
+    it('Should use the request module and return imgur.com/about in place' +
       ' of super-fakedomain.com', function (done) {
       request({
         uri: 'http://'.concat(HOST_TO_PROXY).concat('/about')
       }, function (err, res, body) {
         expect(err).to.be.null;
         expect(res).to.be.an('object');
-        console.log(body);
-        expect(body.indexOf('<title>About Us - Imgur</title>')).not.to.equal(-1);
+        expect(body.indexOf('About Us - Imgur</title>')).not.to.equal(-1);
         done();
       });
     });
