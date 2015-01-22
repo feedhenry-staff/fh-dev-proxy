@@ -1,8 +1,11 @@
 {
   "name": "fh-dev-proxy",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Enables local development requests to be proxied through the FeedHenry cloud for access to secure backend systems.",
   "main": "./index.js",
+  "bin": {
+    "fh-dev-proxy": "./bin/fh-dev-proxy.js"
+  },
   "scripts": {
     "test": "make test"
   },
@@ -16,11 +19,12 @@
   "author": "Evan Shortiss",
   "license": "MIT",
   "dependencies": {
-    "fhlog": "0.0.6",
+    "fhlog": "~0.1.1",
     "http-proxy": "~1.8.1",
     "fh-instance-url": "0.0.1",
     "xtend": "~4.0.0",
-    "express": "~4.0.0"
+    "express": "~4.0.0",
+    "commander": "~2.2.0"
   },
   "devDependencies": {
     "linelint": "~1.0.0",
