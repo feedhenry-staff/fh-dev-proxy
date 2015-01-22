@@ -19,12 +19,12 @@
   "author": "Evan Shortiss",
   "license": "MIT",
   "dependencies": {
-    "fhlog": "~0.1.2",
-    "http-proxy": "~1.8.1",
+    "fhlog": "0.1.2",
+    "http-proxy": "1.8.1",
     "fh-instance-url": "0.0.1",
-    "xtend": "~4.0.0",
-    "express": "~4.0.0",
-    "commander": "~2.2.0"
+    "xtend": "4.0.0",
+    "express": "4.0.0",
+    "commander": "2.2.0"
   },
   "devDependencies": {
     "linelint": "~1.0.0",
