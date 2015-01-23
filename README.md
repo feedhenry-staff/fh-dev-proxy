@@ -6,13 +6,13 @@ npm i fh-dev-proxy
 ```
 
 A simple to deploy proxy that can be used to enable local development requests 
-to reach a private web service via the whitelisted FeedHenry cloud. 
+to reach a private web service via the whitelisted FeedHenry cloud. Can also be 
+used as a CLI to create a local webserver that will proxy requests via the 
+FeedHenry cloud to a private host.
 
-Also contains the necessary code required to ensure local development requests 
-are proxied through a configured proxy instance. Development requests are 
-always proxied from the local development machine to the cloud instance using 
-HTTPS, the cloud will then execute the request using the original protocol you 
-specified.
+Development requests are always proxied from the local development machine to 
+the cloud instance using HTTPS, the cloud will then execute the request using 
+the original protocol you specified.
 
 
 ## Security & Authentication
@@ -23,10 +23,11 @@ know the API Key for the cloud instance and it's GUID. Without these the proxy
 cannot be used to forward requests.
 
 
-## Proxy Setup
-Simply create a blank cloud application of the FeedHenry platform and place the 
-following in the _application.js_. Naturally you will need to have the
-_fh-dev-proxy_ dependency in your _package.json_.
+## Development Proxy Setup
+You must complete this step before you can use the CLI or local development 
+overrides. Simply create a blank cloud application on the FeedHenry platform 
+and place the following in the _application.js_. Naturally you will need to 
+have the _fh-dev-proxy_ dependency in your _package.json_.
 
 ```javascript
 'use strict';
@@ -69,7 +70,9 @@ var server = app.listen(port, function() {
 
 ```
 
-No other code is required in _application.js_.
+No other code is required in other folders. Once you've replaced the contents 
+of _application.js_ with the above code and deployed it you're ready to use 
+your proxy.
 
 
 ## Reserved Routes
@@ -85,6 +88,40 @@ the cloud instance using HTTPS, the cloud will then execute the request using
 the original protocol you specified.
 
 Only HTTP and HTTPS are supported.
+
+## CLI Usage
+Using this as a CLI is simple, install globally:
+
+```
+npm install -g fh-dev-proxy
+```
+
+Once installed globally the _fh-dev-proxy_ command is available for use like so:
+
+```
+fh-dev-proxy -appid [PROXY_ID] --apikey [PROXY_API_KEY] --fhdomain 
+[YOUR_FH_DOMAIN] --host [HOST_TO_SERVE_LOCALLY]
+```
+
+For example, assume you have a private backend at _https://uat.myservice.com_ 
+and want to browse it but only the FeedHenry platform is whitelisted for 
+access. You can run the following command to run a web server at 
+_localhost:9090_ that will serve the private web service locally for you by 
+proxying requests via the FeedHenry platform.
+
+```
+fh-dev-proxy -appid [PROXY_ID] --apkey [PROXY_API_KEY] --fhdomain 
+[YOUR_FH_DOMAIN] --host https://uat.myservice.com --port 9090
+```
+
+### CLI Options
+All options are required unless stated otherwise as optional.
+
+* **appid** - The ID of your proxy cloud application/service.
+* **apikey** - The Api Key of your proxy. Required for authentication.
+* **fhdomain** - The FeedHenry domain your proxy is running on.
+* **host** - The host you want to serve locally.
+* **port** - Optional. Port to use for the local webserver.
 
 
 ## Development Usage
