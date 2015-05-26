@@ -5,6 +5,8 @@ FH Dev Proxy
 npm i fh-dev-proxy
 ```
 
+NOTE: Only tested on Node.js 0.10.24 and 0.10.33
+
 A simple to deploy proxy that can be used to enable local development requests 
 to reach a private web service via the whitelisted FeedHenry cloud. Can also be 
 used as a CLI to create a local webserver that will proxy requests via the 
