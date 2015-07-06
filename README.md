@@ -126,7 +126,7 @@ proxy.httpOverride.init({
 	guid: 'j7bmVE3VzOpcSCaivi7H6L5x',
 	domain: 'yourdomain.feedhenry.com',
 	apiKey: '429b963cfd20921fc696531611f279a597dd1acb',
-	hosts: ['secure-domain-1.com', 'secure-domain-2.ie']
+	hosts: ['some-secure-domain.com']
 }, function (err) {
 	// Error would be non null if the provided options didn't resolve
 	// to a valid FeedHenry cloud application (proxy)
