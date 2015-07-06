@@ -4,13 +4,21 @@ var expect = require('chai').expect
   , http = require('http')
   , https = require('https')
   , sinon = require('sinon')
-  , request = require('request')
+  , eql = require('deep-eql')
+  , testServer = require('./test-server/dummy-web-service')
   , proxyquire = require('proxyquire')
   , httpOverride = proxyquire('../lib/httpOverride', {
-    'fh-instance-url': instanceUrlStub
-  });
+      'fh-instance-url': instanceUrlStub
+    })
+  , request = require('request');
 
-var HOST_TO_PROXY = 'super-fakedomain.com';
+// Need to accept the self signed cert being used
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
+// We'll attempt make requests to this host...
+var HOST_TO_PROXY = 'http://super-fakedomain.com';
+
+var proxyServerInstance = null;
 
 var VALID_INSTANCE_CONFIG = {
   guid: '0ktwe5phpyrn55pmsgdszgof',
@@ -29,8 +37,8 @@ var INVALID_INSTANCE_CONFIG = {
 function instanceUrlStub (opts, callback) {
   delete opts.forceProxy;
 
-  if (JSON.stringify(opts) === JSON.stringify(VALID_INSTANCE_CONFIG)) {
-    callback(null, 'http://imgur.com');
+  if (eql(opts) === eql(VALID_INSTANCE_CONFIG)) {
+    callback(null, 'http://127.0.0.1:3000');
   } else {
     callback(true, null);
   }
@@ -38,6 +46,7 @@ function instanceUrlStub (opts, callback) {
 
 
 describe('HTTP Override', function () {
+  this.timeout(40000);
 
   function getOverrideInit (opts, callback) {
     if (!callback) {
@@ -48,6 +57,11 @@ describe('HTTP Override', function () {
       httpOverride.init(opts, callback);
     };
   }
+
+  before(function (done) {
+    testServer.stop();
+    testServer.start(done, true);
+  });
 
   describe('#init', function () {
     // Start clean each time
@@ -104,10 +118,10 @@ describe('HTTP Override', function () {
       expect(fn).to.throw(Error);
     });
 
-    it('Should throw an error as the opts do not resolve', function () {
-      var fn = getOverrideInit(INVALID_INSTANCE_CONFIG);
-
-      expect(fn).to.throw(Error);
+    it('Should return an error as the opts do not resolve', function () {
+      var fn = getOverrideInit(INVALID_INSTANCE_CONFIG, function (err) {
+        expect(err).to.equal(true);
+      });
     });
 
     it('Should not throw an error as the opts do resolve', function () {
@@ -120,8 +134,8 @@ describe('HTTP Override', function () {
 
   });
 
-  describe('Verify Override Intercepts Requests', function () {
-    this.timeout(15000);
+  describe('Verify Override Intercepts Requests and Forwards to Correct ' +
+    'Host', function () {
 
     // Start clean each time
     beforeEach(function (done) {
@@ -129,21 +143,21 @@ describe('HTTP Override', function () {
       httpOverride.init(VALID_INSTANCE_CONFIG, done);
     });
 
-    it('Should use the request module and return imgur.com in place of' +
-      ' super-fakedomain.com', function (done) {
+    it('Should use the request module and return expected response from ' +
+      HOST_TO_PROXY, function (done) {
       request({
         method: 'get',
-        uri: 'http://'.concat(HOST_TO_PROXY)
+        uri: HOST_TO_PROXY
       }, function (err, res, body) {
         expect(err).to.be.null;
         expect(res).to.be.an('object');
-        expect(body.indexOf('the simple image sharer')).not.to.equal(-1);
+        expect(body.indexOf('ok')).not.to.equal(-1);
         done();
       });
     });
 
-    it('Should use the http.get and return imgur.com in place of' +
-      ' super-fakedomain.com', function (done) {
+    it('Should use the http.get and return test content in place of ' +
+      HOST_TO_PROXY, function (done) {
 
       var resData = '';
 
@@ -157,7 +171,7 @@ describe('HTTP Override', function () {
         });
 
         res.on('end', function () {
-          expect(resData.indexOf('the simple image sharer')).not.to.equal(-1);
+          expect(resData.indexOf('ok')).not.to.equal(-1);
           done();
         });
       });
@@ -167,8 +181,8 @@ describe('HTTP Override', function () {
     });
 
 
-    it('Should use the https.get and return imgur.com in place of' +
-      ' super-fakedomain.com', function (done) {
+    it('Should use the https.get and return proxy content in place of ' +
+      HOST_TO_PROXY, function (done) {
 
       var resData = '';
 
@@ -182,7 +196,7 @@ describe('HTTP Override', function () {
         });
 
         res.on('end', function () {
-          expect(resData.indexOf('the simple image sharer')).not.to.equal(-1);
+          expect(resData.indexOf('ok')).not.to.equal(-1);
           done();
         });
       });
@@ -193,14 +207,14 @@ describe('HTTP Override', function () {
 
 
 
-    it('Should use the http.get and return imgur.com/about in place of' +
-      ' super-fakedomain.com', function (done) {
+    it('Should use the http.get and return proxy "500" route in place of ' +
+      HOST_TO_PROXY, function (done) {
 
       var resData = '';
 
       var req = http.get({
         hostname: HOST_TO_PROXY,
-        path: '/about'
+        path: '/500'
       }, function (res) {
         res.setEncoding('utf8');
 
@@ -209,7 +223,7 @@ describe('HTTP Override', function () {
         });
 
         res.on('end', function () {
-          expect(resData.indexOf('About Us - Imgur</title>')).not.to.equal(-1);
+          expect(resData.indexOf('500')).not.to.equal(-1);
           done();
         });
       });
@@ -218,14 +232,14 @@ describe('HTTP Override', function () {
       req.end();
     });
 
-    it('Should use the request module and return imgur.com/about in place' +
-      ' of super-fakedomain.com', function (done) {
+    it('Should use the request module and return "bad request" in place' +
+      ' of ' + HOST_TO_PROXY, function (done) {
       request({
-        uri: 'http://'.concat(HOST_TO_PROXY).concat('/about')
+        uri: HOST_TO_PROXY.concat('/not-a-status-code')
       }, function (err, res, body) {
         expect(err).to.be.null;
         expect(res).to.be.an('object');
-        expect(body.indexOf('About Us - Imgur</title>')).not.to.equal(-1);
+        expect(body.indexOf('Bad Request')).not.to.equal(-1);
         done();
       });
     });
