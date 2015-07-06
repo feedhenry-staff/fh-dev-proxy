@@ -5,28 +5,58 @@ FH Dev Proxy
 npm i fh-dev-proxy
 ```
 
-A simple to deploy proxy that can be used to enable local development requests 
-to reach a private web service via the whitelisted FeedHenry cloud. 
+## Overview
+When developing a Node.js application you plan to deploy on the FeedHenry 
+platform you'll usually do so locally. Developing locally can be problematic if 
+some of the web services you need to reach are behind firewalls or 
+inaccessible for other reasons. This module will allow you to proxy requests to these hosts via the FeedHenry platform while developing locally so you can 
+develop from anywhere without the need for a VPN. This module can also be 
+used as a CLI to create a local web server that will also perform proxying 
+which is useful if you need to run some test cURL commands against a secure 
+web service.
 
-Also contains the necessary code required to ensure local development requests 
-are proxied through a configured proxy instance. Development requests are 
-always proxied from the local development machine to the cloud instance using 
-HTTPS, the cloud will then execute the request using the original protocol you 
-specified.
+Development requests are always proxied from the local development machine to 
+the cloud instance using HTTPS, the cloud will then execute the request using 
+the original protocol you specified. This image represents the process visually:
+
+![Local Development is Enabled](https://dl.dropboxusercontent.com/u/58573547/images/fh_dev_proxy_after.png)
+
+If we are to visualise this as components we'd have the following:
+
+* Our Cloud Application code. This will be running locally and your laptop and 
+is the code that needs to access some private web service.
+* Our proxy instance. This is a standalone mBaaS Service or Cloud Application 
+running on the FeedHenry platform and will be used by your local development 
+code to proxy requests to a private web service.
+
+This all works by having you add a small piece of code to your Cloud Application
+code (the first bullet point above) and creating a separate cloud application 
+or mBaaS Service to perform the required request proxying.
 
 
 ## Security & Authentication
 Naturally exposing a direct proxy without some form of security isn't 
 wise as it could potentially be abused by would be attackers. Preventing 
-unauthorised access to the proxy can is accomplished by using ensuring users 
+unauthorised access to the proxy is accomplished by using ensuring users 
 know the API Key for the cloud instance and it's GUID. Without these the proxy 
-cannot be used to forward requests.
+cannot be used to forward requests. You must also add any hosts that can be 
+proxied using the PROXY_VALID_HOSTS environment variable to the service or 
+cloud application being used as a proxy instance.
 
+## Usage
+Getting your local development code to proxy requests requires two steps:
 
-## Proxy Setup
-Simply create a blank cloud application of the FeedHenry platform and place the 
-following in the _application.js_. Naturally you will need to have the
-_fh-dev-proxy_ dependency in your _package.json_.
+1. Setup a proxy on the FeedHenry Platform.
+2. Add some initialisation code to your Cloud Application code.
+
+#### Proxy Application Setup
+You must complete this step before you can use the CLI or local development 
+overrides. Simply create a blank Cloud Application or mBaaS Service on the FeedHenry platform and place the following in the _application.js_. Naturally 
+you will need to have the _fh-dev-proxy_ added to the "dependencies" in your 
+_package.json_. You will also need to make the application URL public from the 
+bottom of the Details tab if it's an mBaaS Service.
+
+Here's what your proxy instance _application.js_ should look like:
 
 ```javascript
 'use strict';
@@ -54,7 +84,11 @@ app.use(mbaasExpress.fhmiddleware());
 
 /**
  * This is where our proxy magic happens!
+ * We add a route that can handle all requests and set the env var telling the
+ * proxy which hosts it is permitted to forward requests to.
  */
+// The proxy will only forward requests bound for "some-secure-domain.com"
+process.env.PROXY_VALID_HOSTS = ['some-secure-domain.com'];
 app.use('/*', require('fh-dev-proxy').proxy);
 
 // fhlint-end
@@ -69,33 +103,16 @@ var server = app.listen(port, function() {
 
 ```
 
-No other code is required in _application.js_.
+No other code is required in other folders. Once you've replaced the contents 
+of _application.js_ with the above code and deployed it you're ready to use 
+your proxy.
 
-
-## Reserved Routes
-The usual FeedHenry specifc routes are reserved. This means that making a 
-request to your proxy that has the path _/sys/info/ping_ will be routed to the 
-FeedHenry handler for this as will other standard routes. Realistically the 
-potentially for this being an issue is very slim.
-
-
-## Protocols and HTTPS
-Development requests are always proxied from the local development machine to 
-the cloud instance using HTTPS, the cloud will then execute the request using 
-the original protocol you specified.
-
-Only HTTP and HTTPS are supported.
-
-
-## Development Usage
-To use this in your projects (and to actually use your proxy!) simply perform 
-a host remapping as part of your cloud startup process. If your application is 
-deployed in the FeedHenry cloud the mappings won't take effect, so you don't 
-need to add any extra logic to manage local vs. FeedHenry environments; 
-your code will simply work as expected!
+#### Configure Request Forwarding in your Cloud Application
+Now that you've created the proxy instance you just need to add some extra 
+initialisation code to your Cloud Application code.
 
 The below code will ensure any HTTP/HTTPS requests you perform in your cloud 
-application (when running locally) are proxied via the proxy you've specified. 
+app, when running locally, are proxied via your FeedHenry proxy instance. 
 For example any HTTP request to _secure-domain-1.com_ when running on your 
 local machine would be proxied via a cloud application with the guid 
 _j7bmVE3VzOpcSCaiMi7H6L5x_ running on _yourdomain.feedhenry.com_ over HTTPS and 
@@ -116,7 +133,7 @@ proxy.httpOverride.init({
 
 	if (err) {
 		// Bail. The proxy setup failed.
-		process.exit(1);
+		throw err;
 	} else {
 		// Start your app as normal. Your proxy will be used for any HTTP 
 		// requests to secure-domain-1.com and secure-domain-2.ie
@@ -125,11 +142,31 @@ proxy.httpOverride.init({
 
 ```
 
+If your application is deployed in the FeedHenry cloud the mappings won't take 
+effect, so you don't need to add any extra logic to manage local vs. FeedHenry
+environments; your code will simply work as expected!
+
+## Reserved Routes
+The usual FeedHenry specifc routes are reserved. This means that making a 
+request to your proxy that has the path _/sys/info/ping_ will be routed to the 
+FeedHenry handler for this as will other standard routes. The 
+potential for this being an issue is very slim.
+
+
+## Protocols and HTTPS
+Development requests are _always_ proxied from the local development machine to 
+the cloud instance using HTTPS, the cloud will then execute the request using 
+the original protocol you specified on your local development machine.
+
+Only HTTP and HTTPS are supported.
+
 
 ## API
 
 ### proxy
 This is the route handler used for all cloud requests in an express application.
+It will take requests and perform verification and proxying if the request 
+contains the correct credentials.
 
 Use like so:
 
@@ -141,10 +178,10 @@ app.use('/*', require('fh-dev-proxy').proxy);
 ```
 
 ### httpOverride
-An object with two methods bound. Allows you yo configure your local 
+An object with two methods bound. Allows you you configure your local 
 development environment.
 
-#### init(params, callback)
+##### init(params, callback)
 Configures your local development environment to proxy requests to specified 
 hosts via a proxy running in the FeedHenry cloud. Both parameters are required.
 
@@ -157,6 +194,62 @@ The _params_ must contain the following:
 proxy.
 * hosts (Array) - An array hosts you want to proxy via the cloud proxy you 
 created e.g ['www.google.com', 'a-secure-domain.com']
+
+Example:
+
+```javascript
+var proxy = require('fh-dev-proxy');
+
+proxy.httpOverride.init({
+	guid: 'YOUR_SERVICE_OR_CLOUD_APPID',
+	apiKey: 'API_KEY_RELATED_TO_ABOVE_GUID',
+	domain: 'yourdomain.feedhenry.com',
+	hosts: ['some.host-to-proxy.com']
+}, function (err) {
+	if (err) {
+		throw err;
+	} else {
+		var express = require('express');
+		var app = express();
+
+		// Setup the rest of your app...
+	}
+});
+```
+
+## CLI Usage
+Using this as a CLI is simple, install globally:
+
+```
+npm install -g fh-dev-proxy
+```
+
+Once installed globally the _fh-dev-proxy_ command is available for use like so:
+
+```
+fh-dev-proxy -appid [PROXY_ID] --apikey [PROXY_API_KEY] --fhdomain 
+[YOUR_FH_DOMAIN] --host [HOST_TO_SERVE_LOCALLY]
+```
+
+For example, assume you have a private backend at _https://uat.myservice.com_ 
+and want to browse it but only the FeedHenry platform is whitelisted for 
+access. You can run the following command to run a web server at 
+_localhost:9090_ that will serve the private web service locally for you by 
+proxying requests via the FeedHenry platform.
+
+```
+fh-dev-proxy -appid [PROXY_ID] --apkey [PROXY_API_KEY] --fhdomain 
+[YOUR_FH_DOMAIN] --host https://uat.myservice.com --port 9090
+```
+
+### CLI Options
+All options are required unless stated otherwise as optional.
+
+* **appid** - The ID of your proxy cloud application/service.
+* **apikey** - The Api Key of your proxy. Required for authentication.
+* **fhdomain** - The FeedHenry domain your proxy is running on.
+* **host** - The host you want to serve locally.
+* **port** - Optional. Port to use for the local webserver.
 
 
 ## Further Security/Features/Ideas & Contributions
