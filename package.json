@@ -7,7 +7,8 @@
     "fh-dev-proxy": "./bin/fh-dev-proxy.js"
   },
   "scripts": {
-    "test": "make test"
+    "test": "mocha -R spec ./test/*.js",
+    "format": "linelint ./lib/*.js ./lib/**/*.js"
   },
   "keywords": [
     "fh",

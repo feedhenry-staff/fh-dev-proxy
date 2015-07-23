@@ -1,6 +1,10 @@
 FH Dev Proxy
 ============
 
+[![build-status](https://travis-ci.org/feedhenry-staff/fh-dev-proxy.svg?branch=master)
+](https://travis-ci.org/feedhenry-staff/fh-dev-proxy.svg?branch=master)[![version](https://badge.fury.io/js/fh-dev-proxy.svg)
+](https://badge.fury.io/js/fh-dev-proxy.svg)
+
 ```
 npm i fh-dev-proxy
 ```
