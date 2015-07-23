@@ -6,6 +6,8 @@ npm i fh-dev-proxy
 ```
 
 ## Overview
+This module is only tested with Node.js 0.10.24 & 0.10.30.
+
 When developing a Node.js application you plan to deploy on the FeedHenry 
 platform you'll usually do so locally. Developing locally can be problematic if 
 some of the web services you need to reach are behind firewalls or 
