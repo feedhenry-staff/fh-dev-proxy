@@ -1,7 +1,7 @@
 'use strict';
 
-var proxy = require('../index.js')
-  , request= require('request');
+// Always require fh-dev-proxy first
+var proxy = require('../index.js');
 
 proxy.httpOverride.init({
   // Special override to allow a URL be used in place of GUID & API Key
@@ -13,7 +13,10 @@ proxy.httpOverride.init({
   if (err) {
     throw err;
   }
-
+  // Require all components inside this callback to ensure they
+  // honor the proxy setup
+  var request= require('request');
+  
   request.get('http://www.google.com', function (err, res, body) {
     if (err) {
       console.error('Proxy failed to return google.com via HTTP');
