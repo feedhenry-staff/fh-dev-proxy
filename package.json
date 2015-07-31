@@ -6,6 +6,7 @@
   "bin": {
     "fh-dev-proxy": "./bin/fh-dev-proxy.js"
   },
+  "repository": "https://github.com/feedhenry-staff/fh-dev-proxy",
   "scripts": {
     "test": "mocha -R spec ./test/*.js",
     "format": "linelint ./lib/*.js ./lib/**/*.js"

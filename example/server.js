@@ -27,7 +27,8 @@ app.use(mbaasExpress.fhmiddleware());
  */
 process.env['FH_INSTANCE'] = 'Test Instance Guid';
 process.env['FH_APP_API_KEY'] = 'Test App Api Key';
-app.use('/*', require('../index.js').proxy);
+process.env['PROXY_VALID_HOSTS'] = 'www.google.com';
+app.use('*', require('../index.js').proxy);
 
 // fhlint-end
 
