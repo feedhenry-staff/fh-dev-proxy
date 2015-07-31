@@ -1,6 +1,6 @@
 {
   "name": "fh-dev-proxy",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Enables local development requests to be proxied through the FeedHenry cloud for access to secure backend systems.",
   "main": "./index.js",
   "bin": {
