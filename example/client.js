@@ -15,8 +15,8 @@ proxy.httpOverride.init({
   }
   // Require all components inside this callback to ensure they
   // honor the proxy setup
-  var request= require('request');
-  
+  var request = require('request');
+
   request.get('http://www.google.com', function (err, res, body) {
     if (err) {
       console.error('Proxy failed to return google.com via HTTP');
