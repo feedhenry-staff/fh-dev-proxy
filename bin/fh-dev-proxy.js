@@ -27,7 +27,7 @@ log.info('Validating proxy configuration...');
 // Ensure a port is configured
 program.port = program.port || 9000;
 
-function existOrExit (param) {
+function existsOrExit (param) {
   if (!program[param]) {
     log.err('%s is a required parameter.', param)
     log.err('Exiting due to invalid params');
@@ -35,10 +35,8 @@ function existOrExit (param) {
   }
 }
 
-existOrExit('appid');
-existOrExit('host');
-existOrExit('fhdomain');
-existOrExit('apikey');
+['appid', 'host', 'fhdomain', 'apikey']
+  .forEach(existsOrExit);
 
 // Parse the remote host
 program.host = url.parse(program.host);
@@ -83,5 +81,5 @@ fhurl({
     proxy.web(req, res, {
       target: targetUrl
     });
-  }).listen(program.port || 9000);
+  }).listen(program.port);
 });
